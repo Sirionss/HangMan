@@ -31,11 +31,11 @@
 #        a. Allow users to provide their own list of words for the game.
 #        b. Handle file reading and parsing to load the custom word list.
 #
-#import tkinter as tk
+
+
+from  tkinter import *
 from random import  randrange
 
-
-#root = tk.Tk()
 
 def wordgen(wordlist=None):
 
@@ -62,7 +62,7 @@ def game_page_custom_lst():
     word = wordgen(wordlist)
     print(word)
     word_guess = []
-    for k in word:
+    for _ in word:
         word_guess += ' '
         print(word_guess)
     m_counter = 0
@@ -82,9 +82,24 @@ def game_page_custom_lst():
             m_counter +=1
         print(word_guess)
 
-
-    return
 def results_page():
     return
-wordgen()
-game_page_custom_lst()
+
+root = Tk()
+root.title('Hangman')
+root.columnconfigure(0,weight = 1)
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+x = screen_width // 2 - 250    #I use those variables to open the app in the center of monitor
+y = screen_height // 2 - 300   # and I made this number a bit bigger so it would open a bit higher
+root.geometry(f'500x500+{x}+{y}')
+root.resizable(height= False) # Using this method I restricted resizing so there wouldn't be any errors
+Label(root, text='================', font='Arial 20').grid( row=0, column=0, columnspan=2)
+x = root.winfo_width()
+print(x)
+
+
+root.mainloop()
+
+#wordgen()
+#game_page_custom_lst()
