@@ -32,74 +32,210 @@
 #        b. Handle file reading and parsing to load the custom word list.
 #
 
-
-from  tkinter import *
 from random import  randrange
+import os
 
+clear = lambda: os.system('cls')
+lines_str = '<' + '=' * 100 + '>\n\n' + '<' + '=' * 100 + '>\n'
 
-def wordgen(wordlist=None):
+wp_welcome_str = 'Hangman'.center(102, ' ')
+wp_option1_str = '\n' + ' ' * 40 + '1. Start hangman'
+wp_option2_str = ' ' * 40 + '2. Start hangman with custom wordlist'
+wp_option3_str = ' ' * 40 + '3. Exit'
+wp_option_number_input_str = '\nType a number of option:'
 
-    if wordlist is None:
-        wordlist = ['base', 'number', 'brain']
-    word = wordlist[randrange(3)]
+gpcus_welcome_str1 = 'Hangman Custom Mode\n'.center(102, ' ')
+gpstn_welcome_str1 = 'Hangman Standart Mode\n'.center(102, ' ')
+gp_welcome_str2 = 'Your guess should be a single letter'.center(102, ' ')
+gpcus_hint1_input_str = '\nWrite a name fo the file with custom words:'
+gp_hint2_input_str = ' ' * 40 + '\nWrite your guess:'
+gp_incorrect_input1 = ' ' * 40 + 'This letter was already used'
+gp_incorrect_input2 = ' ' * 40 + 'Incorrect format'
+
+rp_gameover_str = 'Hahaha loooseer! Go try again!'.center(102, ' ')
+rp_win_str = 'Congratulations, you won! You can try again!'.center(102, ' ')
+rp_stats_str = 'Here is your statistics'
+rp_choice1_str = '1. To welcome page'
+rp_choice2_str = '2. Play standard mode'
+rp_choice3_str = '3. Play custom mode'
+rp_choice4_str = '4. Exit'
+rp_option_number_input_str = '\nType a number of option:'
+rp_stat1_str = 'The word was:'
+rp_stat2_str = 'Count of mistakes: '
+rp_stat3_str ='Count of correct guesses: '
+rp_stat4_str = 'Percentage of correct answers over mistakes:'
+def word_gen(wordlist):
+    word = wordlist[randrange(len(wordlist))]
     word_dived = []
     for i in word:
         word_dived += i
-    print(word_dived)
     return word_dived
-def welcome_page():
-    return
-def game_page_stn_lst():
-    print('') # smth to start with
-def game_page_custom_lst():
-    file_name = input()
+
+def custom_list_gen(file_name):
     wordlist = ''
-    f = open(file_name,'r')
+    f = open(file_name, 'r')
     for line in f:
-        wordlist += line
+        wordlist += line.lower()
     wordlist = wordlist.split('\n')
-    print(wordlist)
-    word = wordgen(wordlist)
-    print(word)
-    word_guess = []
-    for _ in word:
-        word_guess += ' '
-        print(word_guess)
-    m_counter = 0
-    print(word)
-    while m_counter < 10:
-        guess = input()
-        while len(guess) != 1 or guess == ' ' :
-            guess = input()
-        i = 0
-        m = 0
-        for k in word:
-            if guess == k:
-                word_guess[i] = k + ' '
-                m +=1
-            i += 1
-        if m == 0:
-            m_counter +=1
-        print(word_guess)
+    return wordlist
 
-def results_page():
+def welcome_page():
+    clear()
+    print(lines_str)
+    print(wp_welcome_str)
+    print(wp_option1_str)
+    print(wp_option2_str)
+    print(wp_option3_str)
+    wp_choice = input(wp_option_number_input_str)
+    if wp_choice == '1':
+        game_page_stn_lst()
+    elif wp_choice == '2':
+        game_page_custom_lst()
+    elif wp_choice == '3':
+        return
+    else:
+        welcome_page()
     return
 
-root = Tk()
-root.title('Hangman')
-root.columnconfigure(0,weight = 1)
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-x = screen_width // 2 - 250    #I use those variables to open the app in the center of monitor
-y = screen_height // 2 - 300   # and I made this number a bit bigger so it would open a bit higher
-root.geometry(f'500x500+{x}+{y}')
-root.resizable(height= False) # Using this method I restricted resizing so there wouldn't be any errors
-Label(root, text='================', font='Arial 20').grid( row=0, column=0, columnspan=2)
-x = root.winfo_width()
-print(x)
+def game_page_custom_lst():
+    clear()
+    print(lines_str)
+    print(gpcus_welcome_str1)
+    print(gp_welcome_str2)
+    file_name = input(gpcus_hint1_input_str)
+    wordlist = custom_list_gen(file_name)
+    word_divided_lst = word_gen(wordlist)
+    word_guess_lst = []
+    word_guess_str = ''
+    for _ in word_divided_lst:
+        word_guess_lst.append('_')
+    for i in word_guess_lst:
+        word_guess_str += i
+    m_counter = 0
+    c_counter = 0
+    guesses_lst = []
+    while m_counter < 10 and '_' in word_guess_lst:
+        clear()
+        print(lines_str)
+        print(word_guess_str.center(102,' '))
+        if guesses_lst:
+            print(guesses_lst[-1])
+        print(10 - m_counter, ' mistakes left')
+        guess = input(gp_hint2_input_str)
+        while len(guess) != 1 or guess == ' ' or guess in guesses_lst:
+            if guess in guesses_lst:
+                print(gp_incorrect_input1)
+                guess = input(gp_hint2_input_str)
+            else:
+                print(gp_incorrect_input2)
+                guess = input(gp_hint2_input_str)
+        guess.lower()
+        guesses_lst.append(guess)
+        ind = 0 # index in word_guess_lst
+        cor = 0 # number of correct guesses
+        for k in word_divided_lst:
+            if guess == k:
+                word_guess_lst[ind] = k
+                cor += 1
+            ind += 1
+        if cor == 0:
+            m_counter += 1
+            guesses_lst.append('Wrong Guess\n')
+        else:
+            c_counter +=1
+            guesses_lst.append('Right Guess\n')
+        word_guess_str = ''
+        for i in word_guess_lst:
+            word_guess_str += i
+
+    results_page(word_divided_lst, guesses_lst, m_counter, c_counter)
+    return
+
+def game_page_stn_lst():
+    clear()
+    print(lines_str)
+    print(gpstn_welcome_str1)
+    print(gp_welcome_str2)
+    input('Press enter to continue'.center(102,' '))
+    wordlist = ['welcome', 'pickle','hangman','puppy','cat','psychology']
+    word_divided_lst = word_gen(wordlist)
+    word_guess_lst = []
+    word_guess_str = ''
+    for _ in word_divided_lst:
+        word_guess_lst.append('_')
+    for i in word_guess_lst:
+        word_guess_str += i
+    m_counter = 0
+    c_counter = 0
+
+    guesses_lst = []
+    while m_counter < 10 and '_' in word_guess_lst:
+        clear()
+        print(lines_str)
+        print(word_guess_str.center(102, ' '))
+        if guesses_lst:
+            print(guesses_lst[-1])
+        print(10 - m_counter, ' mistakes left')
+        guess = input(gp_hint2_input_str)
+        while len(guess) != 1 or guess == ' ' or guess in guesses_lst:
+            if guess in guesses_lst:
+                print(gp_incorrect_input1)
+                guess = input(gp_hint2_input_str)
+            else:
+                print(gp_incorrect_input2)
+                guess = input(gp_hint2_input_str)
+        guess.lower()
+        guesses_lst.append(guess)
+        ind = 0  # index in word_guess_lst
+        cor = 0  # number of correct guesses
+        for k in word_divided_lst:
+            if guess == k:
+                word_guess_lst[ind] = k
+                cor += 1
+            ind += 1
+        if cor == 0:
+            m_counter += 1
+            guesses_lst.append('Wrong Guess\n')
+        else:
+            c_counter += 1
+            guesses_lst.append('Right Guess\n')
+        word_guess_str = ''
+        for i in word_guess_lst:
+            word_guess_str += i
+    results_page(word_divided_lst,guesses_lst,m_counter,c_counter)
+    return
+def results_page(word_divided_lst,guesses_lst,m_counter,c_counter):
+    clear()
+    print(lines_str)
+    if m_counter > 9:
+        print(rp_gameover_str)
+    else:
+        print(rp_win_str)
+    print(rp_stats_str)
+    for k in guesses_lst:
+        print(k, '',end='')
+    word_guess_str = ''
+    for i in word_divided_lst:
+        word_guess_str += i
+        rp_stat1_str
+    print(rp_stat1_str,word_guess_str)
+    print(rp_stat2_str,m_counter)
+    print(rp_stat3_str, c_counter)
+    print(rp_stat4_str, (c_counter*100//(c_counter+m_counter)) ,'%')
+    print(rp_choice1_str)
+    print(rp_choice2_str)
+    print(rp_choice3_str)
+    print(rp_choice4_str)
+    rp_choice = input(rp_option_number_input_str)
+    if rp_choice == '1':
+        welcome_page()
+    elif rp_choice == '2':
+        game_page_stn_lst()
+    elif rp_choice == '3':
+        game_page_custom_lst()
+    else:
+        return
+    return
+welcome_page()
 
 
-root.mainloop()
-
-#wordgen()
-#game_page_custom_lst()
